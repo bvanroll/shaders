@@ -19,6 +19,7 @@ float h_line(vec2 st, float ycor, float width, float x1, float x2) {
 
 void main() {
   vec2 st = gl_FragCoord.xy/u_resolution;
+  vec2 stm = u_mouse/u_resolution;
   vec3 color = vec3(0.0,0.0,0.0);
   //float width = 0.001;
   //color += v_line(st, 0.4, 0.001, 0.25, 0.75) * vec3(1.0);
@@ -33,16 +34,21 @@ void main() {
 
   //now the simple solution
 
-  float box = step(0.4, st.x)-(1.0-step(0.25,st.y)) - step(0.6, st.x)-step(0.75, st.y);
-  float r = sin(u_time/200.0);
-  float g = sin(u_time/3000000.333);
+  //float box = step(0.4, st.x)-(1.0-step(0.25,st.y)) - step(0.6, st.x)-step(0.75, st.y);
+
+  //even simpler
+  vec2 box = step(vec2(0.4, 0.25), st)-step(vec2(0.6,0.75), st);
+  float r = sin(u_time/20.0);
+  float g = sin(u_time/30.0);
   float b = sin(u_time);
-  color.r = r;
-  color.g = g;
-  color.b = b;
+  //float mod = distance(stm, vec2(0.5));
+  float mod = 1.0;
+  color.r = r*mod;
+  color.g = g*mod;
+  color.b = b*mod;
   color = color;
 
-  gl_FragColor = vec4(color, box);
+  gl_FragColor = vec4(color, box.x*box.y);
 
   
 }
