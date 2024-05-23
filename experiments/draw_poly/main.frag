@@ -38,17 +38,23 @@ void main() {
 
   //even simpler
   vec2 box = step(vec2(0.4, 0.25), st)-step(vec2(0.6,0.75), st);
-  float r = sin(u_time/20.0);
-  float g = sin(u_time/30.0);
-  float b = sin(u_time);
+  //trying to make an outline
+  vec2 smallerbox = step(vec2(0.401, 0.251), st)-step(vec2(0.599,0.749), st);
+
+  //box = box * (vec2(1.0)-smallerbox);
+  //i don't understand these results, but when subtracting after the x and y are extracted it works (see next line)
+
+  float val = (box.x * box.y) - (smallerbox.x * smallerbox.y);
+  float r = (1.0+sin(u_time+20.0))/2.0;
+  float g = (1.0+sin(u_time+50.0))/2.0;
+  float b = (1.0+sin(u_time))/2.0;
   //float mod = distance(stm, vec2(0.5));
   float mod = 1.0;
   color.r = r*mod;
   color.g = g*mod;
   color.b = b*mod;
   color = color;
-
-  gl_FragColor = vec4(color, box.x*box.y);
+  gl_FragColor = vec4(color, val);
 
   
 }
