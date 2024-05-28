@@ -19,8 +19,11 @@ float circle_grid(in vec2 _st, in float _radius, in float amount, in float speed
 
 void main() {
   vec2 st = gl_FragCoord.xy/u_resolution;
+  st.x *= u_resolution.x/u_resolution.y;
   vec3 color = vec3(0.0,0.0,0.0);
   vec2 stm = (u_mouse/u_resolution)-vec2(.5);
+
+  circle_grid(st,(sin(u_time)+1.)/2., 8., 2.,stm.x, stm.y*-1.);
   color.r = circle_grid(st,(sin(u_time)+1.)/2., 8., 2.,stm.x, stm.y*-1.);
   color.g = circle_grid(st,(sin(u_time*2.)+1.)/4., 8., 2.,stm.x*-1., stm.y*-1.);
   color.b = circle_grid(st,(sin(u_time*3.)+1.)/8., 8., 2.,stm.x*-1., stm.y);
