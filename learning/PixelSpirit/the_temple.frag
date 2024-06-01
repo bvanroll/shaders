@@ -17,11 +17,24 @@ vec3 cosPalette(float t) {
   return uAColor + uBColor*cos(6.28318*(uCColor*t+uDColor));
 }
 
+float fill(float x, float size) {
+  return 1.-step(size, x);
+}
+//wtf even
+float triSDF(vec2 st) {
+  st = (st*2.-1.)*2.;
+  return max(abs(st.x)*.866025+st.y*.5,-st.y*.5);
+}
 
 void main() {
   vec2 st = gl_FragCoord.xy/u_resolution;
   vec3 color = vec3(0.0,0.0,0.0);
   float alpha = 1.0;
+  st.y = 1.-st.y;
+  vec2 ts = vec2(st.x,.82-st.y);
+  color += fill(triSDF(st), .7);
+  color -= fill(triSDF(ts), .36);
+
 
   
 

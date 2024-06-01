@@ -17,14 +17,13 @@ vec3 cosPalette(float t) {
   return uAColor + uBColor*cos(6.28318*(uCColor*t+uDColor));
 }
 
-float rectSDF(vec2 st, vec2 s) {
-  st = st*2.-1.;
-  return max(abs(st.x/s.x),abs(st.y/s.y));
-}
-
-float crossSDF(vec2 st, float s) {
-  vec2 size = vec2(.25, s);
-  return min(rectSDF(st,size.xy),rectSDF(st,size.yx));
+//starting to refactor these so i can use them as individual snippets without dependencies
+float rhombSDF(vec2 st) {
+  vec2 st1 = (st*2.-1.)*2.;
+  vec2 st2 = (vec2(st.x,1.-st.y)*2.-1.)*2.;
+  float triangle1 = max(abs(st1.x)*.866025+st1.y*.5,-st1.y*.5);
+  float triangle2 = max(abs(st2.x)*.866025+st2.y*.5,-st2.y*.5);
+  return max(triangle1, triangle2);
 }
 
 float fill(float x, float size) {
@@ -40,16 +39,11 @@ void main() {
   vec2 st = gl_FragCoord.xy/u_resolution;
   vec3 color = vec3(0.0,0.0,0.0);
   float alpha = 1.0;
-  float rect = rectSDF(st,vec2(1.));
-  color += fill(rect,.5);
-  float cross = crossSDF(st,1.);
-  //i don't understand what happens here
-  //it has to be fract causing this to look like that
-  color *= step(.5,fract(cross*4.));
-  color *= step(1.,cross);
-  color += fill(cross,.5);
-  color += stroke(rect,.65,.05);
-  color += stroke(rect,.75,.025);
+  float sdf = rhombSDF(st);
+  color += fill(sdf,.425);
+  color += stroke(sdf, .5,.05);
+  color += stroke(sdf, .6,.05);
   
+
   gl_FragColor = vec4(color, alpha);
 }

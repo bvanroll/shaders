@@ -17,39 +17,33 @@ vec3 cosPalette(float t) {
   return uAColor + uBColor*cos(6.28318*(uCColor*t+uDColor));
 }
 
-float rectSDF(vec2 st, vec2 s) {
-  st = st*2.-1.;
-  return max(abs(st.x/s.x),abs(st.y/s.y));
+float circleSDF(vec2 st) {
+  return length(st-.5)*2.;
 }
-
-float crossSDF(vec2 st, float s) {
-  vec2 size = vec2(.25, s);
-  return min(rectSDF(st,size.xy),rectSDF(st,size.yx));
+float triSDF(vec2 st) {
+  st = (st*2.-1.)*2.;
+  return max(abs(st.x)*.866025+st.y*.5,-st.y*.5);
 }
-
-float fill(float x, float size) {
-  return 1.-step(size, x);
-}
-
 float stroke(in float x_coor, float s, float width){
   float d = step(s,x_coor+width*.5)-step(s,x_coor-width*.5);
   return clamp(d, 0.,1.);
+}
+float fill(float x, float size) {
+  return 1.-step(size, x);
 }
 
 void main() {
   vec2 st = gl_FragCoord.xy/u_resolution;
   vec3 color = vec3(0.0,0.0,0.0);
   float alpha = 1.0;
-  float rect = rectSDF(st,vec2(1.));
-  color += fill(rect,.5);
-  float cross = crossSDF(st,1.);
-  //i don't understand what happens here
-  //it has to be fract causing this to look like that
-  color *= step(.5,fract(cross*4.));
-  color *= step(1.,cross);
-  color += fill(cross,.5);
-  color += stroke(rect,.65,.05);
-  color += stroke(rect,.75,.025);
+  float circle = circleSDF(st-vec2(.0,.1));
+  float triangle = triSDF(st+vec2(.0,.1));
+  color += stroke(circle,.45,.1);
+  //good way to disable colors in a space. since mult 1. gives the og value but mult .0 sets to 0
+  color *= step(.55,triangle);
+  color += fill(triangle,.45);
+
   
+
   gl_FragColor = vec4(color, alpha);
 }
