@@ -125,19 +125,18 @@ void main() {
   st.x *= u_resolution.x/u_resolution.y;
   st = st -.5;
   st *= 2.;
- // vec3 color = vec3(0.0,0.0,0.0);
   float color = 0.;
   float d = length(st);
   float alpha = 1.0;
   float s = u_time*8.;
   float f_amount = 4.;
   vec2 f_st = fract(st*f_amount);
-  f_st = rotate(f_st,dot(st,st)+(s*d));
+  f_st = rotate(f_st,sin(dot(f_st,f_st)+(s*dot(st,st))));
 
   float t = triSDF(f_st);
   //color += stroke(t, .5,.1);
-  color += stroke(t, .8,.2);
-  color *= pnoise(st*s, f_st*s)+.5;
+  color += stroke(t, 1.-(sin(dot(st,f_st)+s)*.5),.2);
+  color *= pnoise(st*s, f_st*s)*(sin(s)+2.);
   
-  gl_FragColor = vec4(vec3(color), alpha);
+  gl_FragColor = vec4(cosPalette(color), alpha);
 }
