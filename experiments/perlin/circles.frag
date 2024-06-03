@@ -4,8 +4,15 @@ precision mediump float;
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
 uniform float u_time;
-
 #define PI 3.14159265359
+
+const vec3 uAColor = vec3(.0,.5,.5);
+const vec3 uBColor = vec3(.0,.5,.5);
+const vec3 uCColor = vec3(0.,.5,.333);
+const vec3 uDColor = vec3(.0,.5,.667);
+
+//get colors from http://dev.thi.ng/gradients/
+vec3 cosPalette(float t) { return uAColor + uBColor*cos(6.28318*(uCColor*t+uDColor)); }
 
 //2d perlin noise fn via stegu/webgl-noise
 vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -97,47 +104,26 @@ float pnoise(vec2 P, vec2 rep)
   return 2.3 * n_xy;
 }
 
-
-const vec3 uAColor = vec3(.821,.328,.242);
-const vec3 uBColor = vec3(.659,.481,.896);
-const vec3 uCColor = vec3(.612,.340,.296);
-const vec3 uDColor = vec3(2.82,3.026,-.273);
-
-//get colors from http://dev.thi.ng/gradients/
-vec3 cosPalette(float t) { return uAColor + uBColor*cos(6.28318*(uCColor*t+uDColor)); }
-
 float stroke(in float x_coor, float s, float width){
   float d = step(s,x_coor+width*.5)-step(s,x_coor-width*.5);
   return clamp(d, 0.,1.);
 }
 
-float triSDF(vec2 st) {
-  st = (st*2.-1.)*2.;
-  return max(abs(st.x)*.866025+st.y*.5,-st.y*.5);
-}
-vec2 rotate(vec2 st, float a) {
-  st = mat2(cos(a),-sin(a),sin(a),cos(a))*(st-.5);
-  return st+.5;
-}
+float circleSDF(vec2 st) { return length(st-.5)*2.; }
 
 void main() {
   vec2 st = gl_FragCoord.xy/u_resolution;
-  st.x *= u_resolution.x/u_resolution.y;
-  st = st -.5;
-  st *= 2.;
- // vec3 color = vec3(0.0,0.0,0.0);
-  float color = 0.;
-  float d = length(st);
+  float s = u_time/2.;
+  float color = sin(s)*cos(s)/s*st.x;
   float alpha = 1.0;
-  float s = u_time*8.;
-  float f_amount = 4.;
-  vec2 f_st = fract(st*f_amount);
-  f_st = rotate(f_st,dot(st,st)+(s*d));
-
-  float t = triSDF(f_st);
-  //color += stroke(t, .5,.1);
-  color += stroke(t, .8,.2);
-  color *= pnoise(st*s, f_st*s)+.5;
-  
-  gl_FragColor = vec4(vec3(color), alpha);
+  vec2 off = vec2(.2);
+  float md = sin(u_time);
+  int it = 8;
+  for (int i = 0; i<it; i++) {
+    color += stroke(circleSDF(st+(off*vec2(sin(s/md),cos(s/md)))), .3,(.1*abs(sin(s/md))));
+    md *=2.;
+  }
+  color *= abs(pnoise(st+(10000.*cos(s)),st*sin(s)));
+   
+  gl_FragColor = vec4(cosPalette(color), alpha);
 }
