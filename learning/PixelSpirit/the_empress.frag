@@ -29,8 +29,13 @@ void main() {
   vec2 st = gl_FragCoord.xy/u_resolution;
   vec3 color = vec3(0.0,0.0,0.0);
   float alpha = 1.0;
-  color += fill(polySDF(st, 5),.3);
+  float d1 = polySDF(st,5.);
+  vec2 ts = vec2(st.x,1.-st.y); //flips the y coords, interesting name btw
+  float d2 = polySDF(ts,5.);
+  //color += fract(d1*3.);
+  color += fill(d1,.75)*fill(fract(d1*5.),.5);
+  color -= fill(d1,.6)*fill(fract(d2*4.9),.45);
+  //color = vec3(fill(fract(d1*10.),.5));
   
-
   gl_FragColor = vec4(color, alpha);
 }
