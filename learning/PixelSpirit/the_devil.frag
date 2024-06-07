@@ -15,10 +15,12 @@ const vec3 uDColor = vec3(.0,.33,.67);
 //get colors from http://dev.thi.ng/gradients/
 vec3 cosPalette(float t) { return uAColor + uBColor*cos(6.28318*(uCColor*t+uDColor)); }
 
-
-float hexSDF(vec2 st) {
-  st = abs(st*2.-1.);
-  return max(abs(st.y),st.x*.866025+st.y*.5);
+float starSDF(vec2 st, int V, float s) {
+  st = st*4.-2.;
+  float a = atan(st.y, st.x)/(2.*PI);
+  float seg = a * float(V);
+  a = ((floor(seg) + .5)/float(V)+mix(s,-s,step(.5,fract(seg))))*(2.*PI);
+  return abs(dot(vec2(cos(a),sin(a)),st));
 }
 
 float stroke(in float x_coor, float s, float width){
@@ -26,17 +28,17 @@ float stroke(in float x_coor, float s, float width){
   return clamp(d, 0.,1.);
 }
 
-float fill(float x, float size) { return 1.-step(size, x); }
+float circleSDF(vec2 st) { return length(st-.5)*2.; }
 
 void main() {
   vec2 st = gl_FragCoord.xy/u_resolution;
   vec3 color = vec3(0.0,0.0,0.0);
   float alpha = 1.0;
-  st = st.yx;
-  color += stroke(hexSDF(st),.6,.1);
-  color += fill(hexSDF(st-vec2(-.06,-.1)),.15);
-  color += fill(hexSDF(st-vec2(-.06,.1)),.15);
-  color += fill(hexSDF(st-vec2(.11,.0)),.15);
+  color += stroke(circleSDF(st),.8,.05);
+  st.y = 1.-st.y;
+  float s = starSDF(st.yx,5,.1);
+  color *= step(.7,s);
+  color += stroke(s,.4,.1);
   
 
   gl_FragColor = vec4(color, alpha);
