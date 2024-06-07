@@ -44,16 +44,16 @@ void main() {
   m *= u_resolution.x/u_resolution.y;
   m = abs(m);
   float alpha = 1.0;
-  float fq = 2.;
-  float pos = radians(dot(m,m)*360.);
-  float c = circleSDF(st);
+  float fq = 3.;
+  float pos =radians(180.*u_time);
+  float circle = circleSDF(st);
   float r = rectSDF(st, vec2(1.));
   float a = atan(st.y,st.x);
   float f = (cos(a*fq+pos)/2.+.5)*.1;
   float s = polySDF(st, 6.);
   //a = abs(cos(a+u_time))*.1;
   //a = mix(a, .1, sin(u_time));
-  color += stroke(s,.5,.1+f);
+  color += stroke(circle,.5,f);
   //color += c;
   
   gl_FragColor = vec4(color, alpha);
