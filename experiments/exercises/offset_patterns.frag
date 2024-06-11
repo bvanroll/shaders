@@ -23,12 +23,13 @@ void main() {
   vec2 st = (gl_FragCoord.xy*2. - u_resolution.xy)/u_resolution.y;
   vec3 color = vec3(0.0,0.0,0.0);
   float alpha = 1.0;
-  float sp = u_time/2.;
+  float sp = u_time/8.;
   float m = step(mod(sp*10.,2.),1.);
   vec2 st2 = st;
   //vec2 st2 = fract(st*10.)-.5;
-  //vec2 u = step(mod(vec2(2.),fract(st2)*10.),vec2(1.))*2.-1.;
-  //u = vec2(1.);
+  vec2 u = vec2(1.);
+  u.x = step(mod(st2.y*10.,2.),1.)*2.-1.;
+  u.y = step(mod(st2.x*10.,2.),1.)*2.-1.;
   st2.x += u.x*fract(sp*m);
   st2.y += u.y*fract(sp*(1.-m));
   st2 = fract(st2*10.)-.5;
