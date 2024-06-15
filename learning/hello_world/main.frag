@@ -6,8 +6,6 @@ uniform float u_time;
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
 
-
-
 vec4 col() {
   vec2 st = gl_FragCoord.xy/u_resolution;
   vec2 mt = u_mouse/u_resolution;
