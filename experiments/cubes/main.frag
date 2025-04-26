@@ -51,8 +51,13 @@ float sceneSDF(vec3 ray) {
 
 float boxSDF(vec3 p, vec3 b)
 {
-  vec3 q = abs(p) - b;
-  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+  float e = .01;
+  p = abs(p  )-b;
+  vec3 q = abs(p+e)-e;
+  return min(min(
+      length(max(vec3(p.x,q.y,q.z),0.0))+min(max(p.x,max(q.y,q.z)),0.0),
+      length(max(vec3(q.x,p.y,q.z),0.0))+min(max(q.x,max(p.y,q.z)),0.0)),
+      length(max(vec3(q.x,q.y,p.z),0.0))+min(max(q.x,max(q.y,p.z)),0.0));
 }
 
 mat4 rotateY(float theta) {
@@ -84,8 +89,8 @@ mat4 rotation3d(vec3 axis, float angle) {
 
 float rayMarch(vec3 ro, vec3 rd, float start, float end, vec4 rot) {
 
-  float MAX_MARCHING_STEPS = 250.;
-  float EPSILON = 0.1;
+  float MAX_MARCHING_STEPS = 15.;
+  float EPSILON = 0.0001;
   float depth = start;
   for (float i = 0.; i < MAX_MARCHING_STEPS; i++) {
     vec3 p = ro + depth * rd;
@@ -104,12 +109,18 @@ void main() {
   float temp = 0.;
   vec3 ro = vec3(0, 0, 5); //ray origin
   vec3 rd = normalize(vec3(st, -1)); //ray direction 
-  float d = rayMarch(ro+vec3(0,.2,.0), rd, 0.,100.,vec4(.4,.8,-.9,.4));
-  d = min(d,rayMarch(ro+vec3(-.2,.0,.0), rd, 0.,100.,vec4(.2,.1,.3,.9)));
-  d = min(d,rayMarch(ro+vec3(-.2,-.8,.0), rd, 0.,100.,vec4(.2,.1,.3,.9)));
-  d = min(d,rayMarch(ro+vec3(-.2,.3,.0), rd, 0.,100.,vec4(.2,.1,.3,.9)));
-  d = min(d,rayMarch(ro+vec3(-.2,.0,-.8), rd, 0.,100.,vec4(.2,.1,.3,.9)));
-  d = 1.-d/7.;
+  float via = cos(3.*u_time) /2.+.5;
+  float vib = cos(.5*u_time) /2.+.5;
+  float vic = cos(1.2*u_time) /2.+.5;
+  float vid = sin(2.*u_time) /2.+.5;
+  float vie = cos(8.*u_time) /2.+.5;
+  float d = rayMarch(ro+vec3(0,.2,-.4), rd, 0.,100.,vec4(.4,.8,-.9,4.)*via);
+  d = min(d,rayMarch(ro+vec3(-.2,.0,.02), rd, 0.,100.,vec4(.2,.1,.3,1.)*vib));
+  d = min(d,rayMarch(ro+vec3(-.9,-.9,-1.0), rd, 0.,100.,vec4(.2,.8,.3,1.2)*vic));
+  d = min(d,rayMarch(ro+vec3(.9,.3,.0), rd, 0.,100.,vec4(.2,.1,.3,.1)*vid));
+  d = min(d,rayMarch(ro+vec3(-.2,.9,-.8), rd, 0.,100.,vec4(.7,.1,.3,.9)*vie));
+  d = 1.-d/12.5;
+  d = stroke(d, .6, .01);
   vec3 col = vec3(d);
   if (d > 100.0) {
     //col = vec3(0.1);
